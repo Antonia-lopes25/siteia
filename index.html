@@ -3,146 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Suporte IA - DropLatam</title>
+  <title>Site Simples com Chat</title>
   <style>
-    * { box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #e5e7eb;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .chat-container {
-      width: 100%;
-      max-width: 450px;
-      height: 80vh;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .chat-header {
-      background: #2563eb;
-      color: white;
-      padding: 1rem;
-      font-size: 1.2rem;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f4f4f4;
       text-align: center;
     }
-    .chat-messages {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      background: #f9fafb;
+    h1 {
+      color: #333;
     }
-    .message {
-      margin-bottom: 1rem;
-      display: flex;
-      flex-direction: column;
-    }
-    .user-msg {
-      align-items: flex-end;
-    }
-    .bot-msg {
-      align-items: flex-start;
-    }
-    .bubble {
-      padding: 0.7rem 1rem;
-      border-radius: 18px;
-      max-width: 80%;
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-    .user-msg .bubble {
-      background: #2563eb;
-      color: white;
-      border-bottom-right-radius: 4px;
-    }
-    .bot-msg .bubble {
-      background: #e5e7eb;
-      color: #111827;
-      border-bottom-left-radius: 4px;
-    }
-    .chat-input {
-      display: flex;
-      padding: 0.8rem;
-      border-top: 1px solid #ddd;
-    }
-    .chat-input input {
-      flex: 1;
-      padding: 0.6rem 1rem;
-      border: 1px solid #ccc;
-      border-radius: 20px;
-      font-size: 1rem;
-    }
-    .chat-input button {
-      margin-left: 0.5rem;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 20px;
-      padding: 0 1.2rem;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    .chat-input button:hover {
-      background: #1e40af;
+    p {
+      color: #666;
     }
   </style>
 </head>
 <body>
+  <h1>Bem-vindo ao nosso site!</h1>
+  <p>Este é um site simples com o chat inserido.</p>
 
-  <div class="chat-container">
-    <div class="chat-header">Suporte DropLatam 🤖</div>
-    <div class="chat-messages" id="chat"></div>
-    <div class="chat-input">
-      <input id="userMessage" type="text" placeholder="Digite sua dúvida..." onkeypress="if(event.key === 'Enter') enviarMensagem()" />
-      <button onclick="enviarMensagem()">Enviar</button>
-    </div>
-  </div>
-
-  <script>
-    const chat = document.getElementById("chat");
-    const input = document.getElementById("userMessage");
-
-    function adicionarMensagem(texto, tipo) {
-      const msg = document.createElement("div");
-      msg.className = "message " + (tipo === "user" ? "user-msg" : "bot-msg");
-      msg.innerHTML = `<div class="bubble">${texto}</div>`;
-      chat.appendChild(msg);
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    async function enviarMensagem() {
-      const texto = input.value.trim();
-      if (!texto) return;
-
-      adicionarMensagem(texto, "user");
-      input.value = "";
-
-      adicionarMensagem("Digitando...", "bot");
-      const placeholder = chat.lastChild;
-
-      try {
-        const resposta = await fetch("https://SEU-N8N.com/webhook/ia-fluxo", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: texto })
-        });
-        const data = await resposta.json();
-        placeholder.remove();
-        adicionarMensagem(data.resposta || "🤖 Desculpe, não consegui entender.", "bot");
-      } catch (err) {
-        console.error(err);
-        placeholder.remove();
-        adicionarMensagem("⚠️ Erro ao conectar com o servidor.", "bot");
-      }
-    }
-  </script>
-
+  <!-- Script do chat -->
+<script
+src='//fw-cdn.com/13447763/5522314.js'
+chat='true'>
+</script>
 </body>
 </html>
