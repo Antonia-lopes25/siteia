@@ -1,55 +1,261 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Site Simples com Chat</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 40px;
-      background-color: #f4f4f4;
-      text-align: center;
-    }
-    h1 {
-      color: #333;
-    }
-    p {
-      color: #666;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat com Controle Rigoroso de Mensagem</title>
+    <style>
+        .message-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            font-size: 18px;
+            text-align: center;
+        }
+        
+        .message-overlay.active {
+            display: flex;
+        }
+        
+        .status-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 999998;
+            font-size: 14px;
+        }
+        
+        .status-waiting {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .status-ready {
+            background: #44ff44;
+            color: black;
+        }
+    </style>
 </head>
 <body>
-  <h1>Bem-vindo ao nosso site!</h1>
-  <p>Este é um site simples com o chat inserido.</p>
+    <!-- Overlay de bloqueio -->
+    <div id="messageOverlay" class="message-overlay">
+        <div>
+            <h2>🚫 Aguarde a resposta</h2>
+            <p>Você já enviou uma mensagem. Aguarde a resposta antes de enviar outra.</p>
+        </div>
+    </div>
+    
+    <!-- Indicador de status -->
+    <div id="statusIndicator" class="status-indicator status-ready">✅ Pronto para enviar</div>
 
-  <!-- Script do chat -->
-<script src='//fw-cdn.com/13500123/5566067.js' chat='true'></script>
+    <!-- Script do chat original -->
+    <script src='//fw-cdn.com/13500123/5566067.js' chat='true'></script>
 
-<script>
-let messageSent = false;
-
-function disableChat() {
-    messageSent = true;
-    document.querySelectorAll('input, textarea, button').forEach(el => {
-        if (el.closest('[id*="chat"], [class*="chat"]')) el.disabled = true;
-    });
-}
-
-function enableChat() {
-    messageSent = false;
-    document.querySelectorAll('input, textarea, button').forEach(el => {
-        if (el.closest('[id*="chat"], [class*="chat"]')) el.disabled = false;
-    });
-}
-
-document.addEventListener('click', (e) => {
-    if (e.target.tagName === 'BUTTON' && messageSent) {
-        e.preventDefault();
-        alert('Aguarde a resposta antes de enviar outra mensagem.');
-    }
-});
-</script>
-
+    <script>
+        // Estado global de controle
+        let messageBlocked = false;
+        let lastMessageTime = 0;
+        let checkInterval = null;
+        
+        // Elementos de UI
+        const overlay = document.getElementById('messageOverlay');
+        const statusIndicator = document.getElementById('statusIndicator');
+        
+        // Função para bloquear mensagens
+        function blockMessages() {
+            messageBlocked = true;
+            lastMessageTime = Date.now();
+            
+            overlay.classList.add('active');
+            statusIndicator.textContent = '⏳ Aguardando resposta...';
+            statusIndicator.className = 'status-indicator status-waiting';
+            
+            console.log('🚫 Mensagens bloqueadas');
+            
+            // Timeout de segurança (30 segundos)
+            setTimeout(() => {
+                if (messageBlocked) {
+                    unblockMessages();
+                    console.log('⏰ Desbloqueio por timeout');
+                }
+            }, 30000);
+        }
+        
+        // Função para desbloquear mensagens
+        function unblockMessages() {
+            messageBlocked = false;
+            
+            overlay.classList.remove('active');
+            statusIndicator.textContent = '✅ Pronto para enviar';
+            statusIndicator.className = 'status-indicator status-ready';
+            
+            console.log('✅ Mensagens desbloqueadas');
+        }
+        
+        // Intercepta TODOS os eventos de clique
+        document.addEventListener('click', function(e) {
+            if (messageBlocked) {
+                // Verifica se o clique é em elementos do chat
+                const chatElements = document.querySelectorAll('button, input[type="submit"], [role="button"]');
+                for (let element of chatElements) {
+                    if (element.contains(e.target) || element === e.target) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        console.log('🚫 Clique bloqueado em:', e.target);
+                        return false;
+                    }
+                }
+            }
+            
+            // Se não está bloqueado, verifica se é um envio
+            const target = e.target;
+            if (target.tagName === 'BUTTON' || target.type === 'submit' || target.getAttribute('role') === 'button') {
+                // Verifica se há texto em qualquer input
+                const allInputs = document.querySelectorAll('input[type="text"], textarea, input:not([type])');
+                let hasText = false;
+                
+                allInputs.forEach(input => {
+                    if (input.value && input.value.trim().length > 0) {
+                        hasText = true;
+                    }
+                });
+                
+                if (hasText) {
+                    blockMessages();
+                    console.log('📤 Mensagem enviada, bloqueando...');
+                }
+            }
+        }, true); // true = useCapture para interceptar antes de outros handlers
+        
+        // Intercepta tecla Enter
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (messageBlocked) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    console.log('🚫 Enter bloqueado');
+                    return false;
+                }
+                
+                // Verifica se há texto para enviar
+                const target = e.target;
+                if ((target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') && 
+                    target.value && target.value.trim().length > 0) {
+                    blockMessages();
+                    console.log('📤 Mensagem enviada via Enter, bloqueando...');
+                }
+            }
+        }, true);
+        
+        // Intercepta eventos de submit de formulários
+        document.addEventListener('submit', function(e) {
+            if (messageBlocked) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🚫 Submit bloqueado');
+                return false;
+            }
+            
+            blockMessages();
+            console.log('📤 Form enviado, bloqueando...');
+        }, true);
+        
+        // Monitor contínuo para detectar novas mensagens
+        function startMessageMonitor() {
+            let lastElementCount = 0;
+            let lastTextLength = 0;
+            
+            checkInterval = setInterval(() => {
+                if (!messageBlocked) return;
+                
+                // Conta elementos que podem ser mensagens
+                const possibleMessages = document.querySelectorAll(
+                    'div, p, span, li, .message, .chat-message, .response, .reply, [role="article"], [role="listitem"]'
+                );
+                
+                // Calcula texto total visível
+                const bodyText = document.body.textContent || '';
+                
+                // Se houve mudança significativa no conteúdo
+                if (possibleMessages.length > lastElementCount + 2 || 
+                    bodyText.length > lastTextLength + 50) {
+                    
+                    // Aguarda mais um pouco para garantir que a mensagem carregou
+                    setTimeout(() => {
+                        if (Date.now() - lastMessageTime > 3000) { // Mínimo 3 segundos
+                            unblockMessages();
+                            console.log('📨 Nova mensagem detectada, desbloqueando');
+                        }
+                    }, 1000);
+                }
+                
+                lastElementCount = possibleMessages.length;
+                lastTextLength = bodyText.length;
+            }, 1000);
+        }
+        
+        // Observer para mudanças no DOM
+        const observer = new MutationObserver((mutations) => {
+            if (!messageBlocked) return;
+            
+            let hasNewContent = false;
+            mutations.forEach(mutation => {
+                if (mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1 && node.textContent && node.textContent.trim().length > 10) {
+                            hasNewContent = true;
+                        }
+                    });
+                }
+            });
+            
+            if (hasNewContent && Date.now() - lastMessageTime > 2000) {
+                setTimeout(() => {
+                    unblockMessages();
+                    console.log('📨 Conteúdo novo detectado via observer');
+                }, 500);
+            }
+        });
+        
+        // Inicia tudo quando a página carrega
+        function initialize() {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+            
+            startMessageMonitor();
+            console.log('🚀 Sistema de controle de mensagem iniciado');
+        }
+        
+        // Inicialização
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            initialize();
+        }
+        
+        // Também inicializa após delay para garantir
+        setTimeout(initialize, 1000);
+        setTimeout(initialize, 3000);
+        
+        // Debug: função para desbloquear manualmente (console)
+        window.forceUnblock = unblockMessages;
+        console.log('💡 Para desbloquear manualmente, digite: forceUnblock()');
+    </script>
 </body>
 </html>
