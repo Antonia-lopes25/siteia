@@ -24,21 +24,31 @@
   <p>Este é um site simples com o chat inserido.</p>
 
   <!-- Script do chat -->
- <script>
-  (function(d,t) {
-    var BASE_URL="https://app.chatwoot.com";
-    var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-    g.src=BASE_URL+"/packs/js/sdk.js";
-    g.defer = true;
-    g.async = true;
-    s.parentNode.insertBefore(g,s);
-    g.onload=function(){
-      window.chatwootSDK.run({
-        websiteToken: 'NU3dtiGnY8NtDKP7cy8jtWnR',
-        baseUrl: BASE_URL
-      })
+<script src='//fw-cdn.com/13500123/5566067.js' chat='true'></script>
+
+<script>
+let messageSent = false;
+
+function disableChat() {
+    messageSent = true;
+    document.querySelectorAll('input, textarea, button').forEach(el => {
+        if (el.closest('[id*="chat"], [class*="chat"]')) el.disabled = true;
+    });
+}
+
+function enableChat() {
+    messageSent = false;
+    document.querySelectorAll('input, textarea, button').forEach(el => {
+        if (el.closest('[id*="chat"], [class*="chat"]')) el.disabled = false;
+    });
+}
+
+document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON' && messageSent) {
+        e.preventDefault();
+        alert('Aguarde a resposta antes de enviar outra mensagem.');
     }
-  })(document,"script");
+});
 </script>
 
 </body>
