@@ -24,24 +24,22 @@
   <p>Este é um site simples com o chat inserido.</p>
 
   <!-- Script do chat -->
-  <script type="text/javascript">
-    !function(e, t, n) {
-      function a() {
-        var e = t.getElementsByTagName("script")[0],
-            n = t.createElement("script");
-        n.type = "text/javascript";
-        n.async = true;
-        n.src = "https://beacon-v2.helpscout.net";
-        e.parentNode.insertBefore(n, e);
-      }
-      if (e.Beacon = n = function(t, n, a) {
-        e.Beacon.readyQueue.push({ method: t, options: n, data: a });
-      }, n.readyQueue = [], t.readyState === "complete") return a();
-      e.attachEvent ? e.attachEvent("onload", a) : e.addEventListener("load", a, false);
-    }(window, document, window.Beacon || function () {});
-  <script
-src='//fw-cdn.com/13448077/5522386.js'
-chat='true'>
+ <script>
+  (function(d,t) {
+    var BASE_URL="https://app.chatwoot.com";
+    var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+    g.src=BASE_URL+"/packs/js/sdk.js";
+    g.defer = true;
+    g.async = true;
+    s.parentNode.insertBefore(g,s);
+    g.onload=function(){
+      window.chatwootSDK.run({
+        websiteToken: 'NU3dtiGnY8NtDKP7cy8jtWnR',
+        baseUrl: BASE_URL
+      })
+    }
+  })(document,"script");
 </script>
+
 </body>
 </html>
