@@ -25,7 +25,60 @@
 
   <!-- Script do chat -->
 <script
-src='//fw-cdn.com/13725213/5714127.js'
+<div id="fc-custom-form" style="position: fixed; bottom: 40px; right: 20px; width: 400px; max-width: 400px; height: auto; max-height: 90vh; background: white; border-radius: 4px; box-shadow: rgba(0, 0, 0, 0.15) 0px 4px 16px; font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Helvetica, Arial, sans-serif; z-index: 2147483647; overflow: hidden; display: block; transform: none;">
+            <div style="width:100%; height: 40px; background: #5d3e94; position: relative;">
+              <button id="fc-close-form" style="
+                position: absolute;
+                top: 3px;
+                right: 15px;
+                background: transparent;
+                border: none;
+                color: white;
+                font-size: 20px;
+                font-weight: 400;
+                cursor: pointer;
+              ">x</button>
+            </div>
+            <img src="https://cdn.shopify.com/s/files/1/0275/5385/7588/files/Logo_DropLatam_horizontal_dark.png?v=1715625177" alt="Logo DropLatam" style="max-width: 60%; height: auto; display: block; margin: 0 auto; margin-top: 20px;">
+            <div style="padding: 20px;">
+              <div style="font-size: 16px; font-weight: 400; color: #1f2937; margin-bottom: 25px; margin-top: 0px; text-align: center;">Informe seus dados abaixo <br> antes de iniciar o atendimento.</div>
+
+              <div style="margin-bottom: 16px;">
+                <label for="fc-name" style="display: block; font-size: 14px; color: #374151; margin-bottom: 6px;"><strong>Nome</strong></label>
+                <input id="fc-name" type="text" placeholder="Coloque aqui seu NOME" style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; box-sizing: border-box; background-color: #f9fafb;" oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ú ]+/g, '')">
+              </div>
+
+              <div style="margin-bottom: 20px; position: relative;">
+                <label for="fc-email" style="display: block; font-size: 14px; color: #374151; margin-bottom: 6px;"><strong>Email</strong></label>
+                <input id="fc-email" type="email" placeholder="seuemail@exemplo.com" style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; box-sizing: border-box; background-color: #f9fafb;" onfocus="document.getElementById('tooltip-email').style.display = 'block'" onblur="document.getElementById('tooltip-email').style.display = 'none'">
+                <div id="tooltip-email" style="
+                  display: none;
+                  position: absolute;
+                  top: 100%;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  margin-top: 6px;
+                  background-color: #f7f2da;
+                  color: #111827;
+                  padding: 8px 12px;
+                  border-radius: 6px;
+                  font-size: 13px;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                  z-index: 10;
+                  width: 300px;
+                  max-width: 300px;
+                ">
+                  <strong>Atenção!</strong> A resposta pode ser enviada por e-mail caso nossa equipe não esteja online.
+                  Então garanta que o e-mail informado está correto e que você tenha acesso a ele!
+                </div>
+              </div>
+
+              <button id="fc-submit" style="width: 100%; padding: 12px; background: #5d3e94; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;">
+                Iniciar Conversa
+              </button>
+            </div>
+          </div>
+  src='//fw-cdn.com/13725213/5714127.js'
 chat='true'>
 </script>
 </body>
