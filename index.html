@@ -140,6 +140,19 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    
+    .success-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 30px;
+    }
   </style>
 </head>
 <body>
@@ -225,58 +238,94 @@
       submitBtn.innerHTML = '<span class="loading"></span> Processando...';
       submitBtn.disabled = true;
       
-      // Store user data
-      window.fcSettings = {
-        name: name,
-        email: email
-      };
-      
       // Show chat container after a short delay
       setTimeout(() => {
         document.getElementById('formContainer').style.display = 'none';
         document.getElementById('chatContainer').style.display = 'block';
         
-        // Load Flashchat script
+        // Load Flashchat script with user data
         loadFlashchat(name, email);
       }, 500);
     }
     
     function loadFlashchat(name, email) {
-      // Create and configure the Flashchat script
+      // Create and configure the Flashchat script with data attributes
       const script = document.createElement('script');
       script.src = '//fw-cdn.com/13725213/5714127.js';
+      
+      // Configure beacon with user data
       script.setAttribute('chat', 'true');
+      script.setAttribute('data-name', name);
+      script.setAttribute('data-email', email);
+      script.setAttribute('data-user-id', email); // Using email as unique ID
+      
+      // Additional optional attributes you might want to set
+      script.setAttribute('data-auto-open', 'true'); // Auto open chat
+      script.setAttribute('data-language', 'pt-BR'); // Set language
+      
+      // You can also set custom fields if your Flashchat supports them
+      // script.setAttribute('data-custom-field-1', 'value');
+      
+      // Alternative method: Setting global variables before loading
+      window.fcSettings = {
+        token: '5714127',
+        host: 'https://fw-cdn.com',
+        config: {
+          headerProperty: {
+            backgroundColor: '#667eea'
+          },
+          user: {
+            name: name,
+            email: email,
+            externalId: email
+          }
+        }
+      };
       
       // Wait for script to load
       script.onload = function() {
-        // Try to set user information in Flashchat
         setTimeout(() => {
-          // Check if fcWidget exists
-          if (typeof fcWidget !== 'undefined') {
-            // Set user properties
-            fcWidget.setExternalId(email);
-            fcWidget.user.setProperties({
-              name: name,
-              email: email
-            });
-            
-            // Open the chat widget
-            fcWidget.open();
-          }
-          
           // Update the loading message
           document.getElementById('chatContainer').innerHTML = `
-            <h2>Chat carregado!</h2>
-            <p>Olá ${name}, você pode começar sua conversa.</p>
-            <p style="margin-top: 10px; color: #666; font-size: 14px;">
-              Se o chat não aparecer, verifique se o bloqueador de pop-ups está desativado.
+            <div class="success-icon">✓</div>
+            <h2>Tudo pronto, ${name}!</h2>
+            <p>O chat foi carregado com sucesso.</p>
+            <p style="margin-top: 20px; color: #666; font-size: 14px;">
+              Seus dados foram configurados e você já pode iniciar a conversa.
             </p>
+            <button class="submit-btn" onclick="openChat()" style="margin-top: 20px;">
+              Abrir Chat
+            </button>
           `;
         }, 1000);
       };
       
+      // Handle script error
+      script.onerror = function() {
+        document.getElementById('chatContainer').innerHTML = `
+          <h2 style="color: #dc3545;">Ops! Algo deu errado</h2>
+          <p>Não foi possível carregar o chat. Por favor, tente novamente.</p>
+          <button class="submit-btn" onclick="location.reload()" style="margin-top: 20px;">
+            Tentar Novamente
+          </button>
+        `;
+      };
+      
       // Add script to page
       document.body.appendChild(script);
+    }
+    
+    // Function to manually open chat if needed
+    function openChat() {
+      if (typeof fcWidget !== 'undefined' && fcWidget.open) {
+        fcWidget.open();
+      } else {
+        // Fallback: try to click the chat button
+        const chatButton = document.querySelector('[id*="fc-widget"]');
+        if (chatButton) {
+          chatButton.click();
+        }
+      }
     }
     
     // Add input validation feedback
@@ -292,5 +341,33 @@
       }
     });
   </script>
+
+  <!-- 
+    Métodos alternativos de configuração do beacon Flashchat:
+    
+    1. Usando data attributes diretamente no HTML:
+    <script 
+      src='//fw-cdn.com/13725213/5714127.js' 
+      chat='true'
+      data-name='João Silva'
+      data-email='joao@email.com'
+      data-user-id='joao@email.com'
+      data-auto-open='true'
+      data-language='pt-BR'>
+    </script>
+    
+    2. Usando variáveis globais antes do script:
+    <script>
+      window.fcSettings = {
+        name: 'João Silva',
+        email: 'joao@email.com',
+        userId: 'joao@email.com'
+      };
+    </script>
+    <script src='//fw-cdn.com/13725213/5714127.js' chat='true'></script>
+    
+    3. Usando parâmetros na URL do script:
+    <script src='//fw-cdn.com/13725213/5714127.js?chat=true&name=João%20Silva&email=joao@email.com'></script>
+  -->
 </body>
 </html>
