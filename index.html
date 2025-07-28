@@ -249,31 +249,25 @@
     }
     
     function loadFlashchat(name, email) {
-      // Create and configure the Flashchat script with data attributes
-      const script = document.createElement('script');
-      script.src = '//fw-cdn.com/13725213/5714127.js';
+      // IMPORTANTE: Configurar as variáveis ANTES de carregar o script
+      // Método 1: Usando window.fcUser (mais comum no Flashchat)
+      window.fcUser = {
+        name: name,
+        email: email,
+        externalId: email,
+        // Adicione outros campos personalizados se necessário
+        meta: {
+          nome_completo: name,
+          email_contato: email,
+          data_cadastro: new Date().toISOString()
+        }
+      };
       
-      // Configure beacon with user data
-      script.setAttribute('chat', 'true');
-      script.setAttribute('data-name', name);
-      script.setAttribute('data-email', email);
-      script.setAttribute('data-user-id', email); // Using email as unique ID
-      
-      // Additional optional attributes you might want to set
-      script.setAttribute('data-auto-open', 'true'); // Auto open chat
-      script.setAttribute('data-language', 'pt-BR'); // Set language
-      
-      // You can also set custom fields if your Flashchat supports them
-      // script.setAttribute('data-custom-field-1', 'value');
-      
-      // Alternative method: Setting global variables before loading
+      // Método 2: Usando window.fcSettings
       window.fcSettings = {
         token: '5714127',
         host: 'https://fw-cdn.com',
         config: {
-          headerProperty: {
-            backgroundColor: '#667eea'
-          },
           user: {
             name: name,
             email: email,
@@ -282,9 +276,57 @@
         }
       };
       
+      // Método 3: Usando fcWidget (se disponível)
+      window.fcWidget = window.fcWidget || {};
+      window.fcWidget.user = {
+        name: name,
+        email: email
+      };
+      
+      // Criar o script do Flashchat
+      const script = document.createElement('script');
+      script.src = '//fw-cdn.com/13725213/5714127.js';
+      script.setAttribute('chat', 'true');
+      
       // Wait for script to load
       script.onload = function() {
+        // Tentar configurar o usuário após o carregamento
         setTimeout(() => {
+          // Se o fcWidget estiver disponível após o carregamento
+          if (window.fcWidget && typeof window.fcWidget.user !== 'undefined') {
+            // Método para definir propriedades do usuário
+            if (typeof window.fcWidget.user.setProperties === 'function') {
+              window.fcWidget.user.setProperties({
+                name: name,
+                email: email
+              });
+            }
+            
+            // Método para definir ID externo
+            if (typeof window.fcWidget.setExternalId === 'function') {
+              window.fcWidget.setExternalId(email);
+            }
+            
+            // Método alternativo
+            if (typeof window.fcWidget.identify === 'function') {
+              window.fcWidget.identify({
+                name: name,
+                email: email,
+                externalId: email
+              });
+            }
+          }
+          
+          // Se houver uma função global do Flashchat
+          if (typeof window.FC !== 'undefined') {
+            if (typeof window.FC.setUser === 'function') {
+              window.FC.setUser({
+                name: name,
+                email: email
+              });
+            }
+          }
+          
           // Update the loading message
           document.getElementById('chatContainer').innerHTML = `
             <div class="success-icon">✓</div>
@@ -297,7 +339,10 @@
               Abrir Chat
             </button>
           `;
-        }, 1000);
+          
+          // Tentar abrir o chat automaticamente
+          setTimeout(openChat, 500);
+        }, 1500);
       };
       
       // Handle script error
